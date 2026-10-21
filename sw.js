@@ -1,9 +1,13 @@
-const CACHE_NAME = 'treino-fabio-v1';
+const CACHE_NAME = 'treino-fabio-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png'
+  './icon.png',
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png',
+  './favicon-32.png'
 ];
 
 self.addEventListener('install', (event) => {
