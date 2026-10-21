@@ -5,6 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Treino de Recomposição - Fabio</title>
   
+  <!-- PWA Manifest & Suporte PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+
+<!-- Suporte para iOS / Safari (iPhone e iPad) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treino Fabio">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+<!-- Favicon para Navegadores Web (PC/Mac) -->
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+
+<!-- Ícone Padrão de Fallback -->
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+
+<!-- Registro do Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker registrado com sucesso!', reg))
+        .catch(err => console.error('Erro ao registrar Service Worker:', err));
+    });
+  }
+</script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
