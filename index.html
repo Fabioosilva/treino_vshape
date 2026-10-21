@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treino de Recomposição - Fabio</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              900: '#064e3b',
+              glow: '#22c55e'
+            },
+            darkbg: '#090d16',
+            cardbg: '#111827',
+            panelbg: '#1f2937'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Estilização customizada de scrollbar e efeitos neon */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #10b981;
+    }
+
+    .neon-border {
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+    }
+    .neon-border:focus-within {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+    }
+
+    /* Animação suave para botões e cards */
+    .exercise-card {
+      transition: all 0.2s ease-in-out;
+    }
+    .exercise-card:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Checkbox customizado para as séries */
+    .set-checkbox:checked + label {
+      background-color: #10b981;
+      color: #ffffff;
+      border-color: #10b981;
+    }
+  </style>
+</head>
+<body class="bg-darkbg text-slate-100 min-h-full flex flex-col font-sans pb-24 md:pb-8">
+
+  <!-- TOP HEADER / PERFIL -->
+  <header class="bg-cardbg border-b border-slate-800 sticky top-0 z-30 shadow-lg backdrop-blur-md bg-opacity-90">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 rounded-xl bg-brand-500/20 border border-brand-500 flex items-center justify-center text-brand-400 font-bold text-xl shadow-inner">
+          F
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-white flex items-center gap-2">
+            Fabio Silva
+            <span class="text-xs bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30">Pano Bianco</span>
+          </h1>
+          <p class="text-xs text-slate-400">Recomposição Corporal &bull; Proteção Articular</p>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Header Badge -->
+      <div class="flex items-center gap-3 text-xs">
+        <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px] uppercase font-semibold">Altura</span>
+          <span class="font-bold text-slate-200">1.78 m</span>
+        </div>
+        <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-slate-400 block text-[10px] uppercase font-semibold">Peso Inicial</span>
+          <span class="font-bold text-brand-400">83.4 kg</span>
+        </div>
+        <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 hidden sm:block">
+          <span class="text-slate-400 block text-[10px] uppercase font-semibold">Gordura Inicial</span>
+          <span class="font-bold text-amber-400">23.3%</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN NAVIGATION TABS -->
+  <nav class="bg-slate-900 border-b border-slate-800 sticky top-[61px] z-20">
+    <div class="max-w-5xl mx-auto px-4 flex justify-around md:justify-start space-x-1 md:space-x-4 overflow-x-auto py-2 text-sm">
+      <button onclick="switchTab('treinos')" id="tab-btn-treinos" class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-brand-500 text-slate-950 font-semibold shadow">
+        <i data-lucide="dumbbell" class="w-4 h-4"></i>
+        <span>Treinos</span>
+      </button>
+      <button onclick="switchTab('evolucao')" id="tab-btn-evolucao" class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+        <i data-lucide="trending-up" class="w-4 h-4"></i>
+        <span>Evolução & Medidas</span>
+      </button>
+      <button onclick="switchTab('resumo')" id="tab-btn-resumo" class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+        <i data-lucide="file-text" class="w-4 h-4"></i>
+        <span>Diretrizes</span>
+      </button>
+      <button onclick="switchTab('dados')" id="tab-btn-dados" class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+        <i data-lucide="database" class="w-4 h-4"></i>
+        <span>Dados / Backup</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
+
+    <!-- ================= TAB 1: TREINOS ================= -->
+    <section id="tab-treinos" class="space-y-6">
+      
+      <!-- SUB-NAVIGATION: DIAS DA SEMANA (A, B, C, D, E) -->
+      <div class="grid grid-cols-5 gap-1 sm:gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-center">
+        <button onclick="selectWorkoutDay('A')" id="btn-day-A" class="py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold transition-all bg-brand-500 text-slate-950 shadow">
+          Treino A
+          <span class="block text-[10px] font-normal opacity-80 hidden sm:block">Peito / Abd</span>
+        </button>
+        <button onclick="selectWorkoutDay('B')" id="btn-day-B" class="py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-slate-200">
+          Treino B
+          <span class="block text-[10px] font-normal opacity-80 hidden sm:block">Costas / Lomb</span>
+        </button>
+        <button onclick="selectWorkoutDay('C')" id="btn-day-C" class="py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-slate-200">
+          Treino C
+          <span class="block text-[10px] font-normal opacity-80 hidden sm:block">Pernas (Joelho Ok)</span>
+        </button>
+        <button onclick="selectWorkoutDay('D')" id="btn-day-D" class="py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-slate-200">
+          Treino D
+          <span class="block text-[10px] font-normal opacity-80 hidden sm:block">Ombros / Abd</span>
+        </button>
+        <button onclick="selectWorkoutDay('E')" id="btn-day-E" class="py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-slate-200">
+          Treino E
+          <span class="block text-[10px] font-normal opacity-80 hidden sm:block">Braços Completo</span>
+        </button>
+      </div>
+
+      <!-- BANNER DO TREINO SELECIONADO & CARDIO INSTRUCTIONS -->
+      <div class="bg-cardbg rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-md">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="workout-tag" class="bg-brand-500/20 text-brand-400 text-xs font-bold px-2.5 py-1 rounded-md border border-brand-500/30">TREINO A</span>
+              <span id="workout-schedule" class="text-xs text-slate-400 font-medium">Segunda-feira &bull; Horário Preferencial: 04:30 às 06:00</span>
+            </div>
+            <h2 id="workout-title" class="text-xl font-bold text-white mt-1">Peito, Tríceps & Abdômen</h2>
+          </div>
+
+          <!-- BOTÃO ZERAR SÉRIES DO DIA -->
+          <button onclick="resetDayCheckboxes()" class="self-start md:self-auto text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition border border-slate-700">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            Resetar Seleções de Hoje
+          </button>
+        </div>
+
+        <!-- CARDIO INFO BOX -->
+        <div class="mt-4 bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex items-start gap-3">
+          <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
+            <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+          </div>
+          <div class="text-xs sm:text-sm">
+            <span class="font-bold text-slate-200 block">Aeróbico Recomendado (Cardio):</span>
+            <p id="workout-cardio" class="text-slate-400 mt-0.5">20 min Esteira Inclinada (Incline 4-6, Velocidade 5.0-5.5 km/h) — Baixo impacto para o joelho.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FLOATING TIMER / CRONÔMETRO DE DESCANSO -->
+      <div class="bg-cardbg border border-slate-800 rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-xl bg-brand-500/20 text-brand-400 border border-brand-500/30">
+            <i data-lucide="timer" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-slate-200">Cronômetro de Descanso entre Séries</h3>
+            <p class="text-xs text-slate-400">Padrão do plano: 45s a 60s (Execução moderada)</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-center">
+          <span id="timer-display" class="text-2xl font-mono font-bold text-brand-400 bg-slate-900 px-4 py-1.5 rounded-xl border border-slate-800 min-w-[90px] text-center">00:45</span>
+          <div class="flex items-center gap-1.5">
+            <button onclick="setTimerSec(45)" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">45s</button>
+            <button onclick="setTimerSec(60)" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">60s</button>
+            <button onclick="setTimerSec(90)" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">90s</button>
+            <button id="timer-toggle-btn" onclick="toggleTimer()" class="px-3 py-1.5 rounded-lg bg-brand-500 text-slate-950 font-bold text-xs hover:bg-brand-400 transition flex items-center gap-1">
+              <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Iniciar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXERCISES LIST CONTAINER -->
+      <div id="exercises-container" class="space-y-4">
+        <!-- Injetado dinamicamente via JS -->
+      </div>
+
+    </section>
+
+    <!-- ================= TAB 2: EVOLUÇÃO E MEDIDAS ================= -->
+    <section id="tab-evolucao" class="space-y-6 hidden">
+      
+      <!-- REGISTRO DE NOVA MEDIÇÃO -->
+      <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-md">
+        <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-brand-400"></i>
+          Registrar Nova Medição de Peso
+        </h2>
+
+        <form id="form-log-weight" onsubmit="handleSaveWeight(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Data</label>
+            <input type="date" id="input-date" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Peso Atual (kg)</label>
+            <input type="number" step="0.1" id="input-weight" placeholder="Ex: 82.5" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">% Gordura Estimado (Opcional)</label>
+            <input type="number" step="0.1" id="input-fat" placeholder="Ex: 22.8" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div class="sm:col-span-3 flex justify-end">
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-sm transition flex items-center gap-2 shadow">
+              <i data-lucide="save" class="w-4 h-4"></i> Salvar Registro
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- CARDS DE MÉTRICAS ATUAIS -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-cardbg p-4 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-400 block font-medium">Peso Mais Recente</span>
+          <span id="metric-latest-weight" class="text-2xl font-bold text-brand-400 mt-1 block">-- kg</span>
+        </div>
+        <div class="bg-cardbg p-4 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-400 block font-medium">IMC Atual</span>
+          <span id="metric-latest-imc" class="text-2xl font-bold text-sky-400 mt-1 block">--</span>
+        </div>
+        <div class="bg-cardbg p-4 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-400 block font-medium">Evolução de Peso</span>
+          <span id="metric-weight-change" class="text-2xl font-bold text-emerald-400 mt-1 block">0.0 kg</span>
+        </div>
+        <div class="bg-cardbg p-4 rounded-xl border border-slate-800">
+          <span class="text-xs text-slate-400 block font-medium">Massa Magra Est.</span>
+          <span id="metric-lean-mass" class="text-2xl font-bold text-purple-400 mt-1 block">-- kg</span>
+        </div>
+      </div>
+
+      <!-- GRÁFICO DE EVOLUÇÃO DE PESO -->
+      <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-md">
+        <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+          <i data-lucide="line-chart" class="w-4 h-4 text-brand-400"></i>
+          Gráfico de Progresso de Peso
+        </h3>
+        <div class="h-64 w-full">
+          <canvas id="weightChart"></canvas>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO EM TABELA -->
+      <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-md">
+        <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+          <i data-lucide="history" class="w-4 h-4 text-brand-400"></i>
+          Histórico de Registros
+        </h3>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm text-slate-300">
+            <thead class="bg-slate-900 text-slate-400 font-semibold border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Data</th>
+                <th class="py-3 px-4">Peso (kg)</th>
+                <th class="py-3 px-4">IMC</th>
+                <th class="py-3 px-4">% Gordura</th>
+                <th class="py-3 px-4">Massa Magra (kg)</th>
+                <th class="py-3 px-4 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body" class="divide-y divide-slate-800/60">
+              <!-- Injetado via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= TAB 3: RESUMO E DIRETRIZES ================= -->
+    <section id="tab-resumo" class="space-y-6 hidden">
+      
+      <!-- INFORMACÕES E METAS DO PLANO -->
+      <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-md">
+        <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <i data-lucide="target" class="w-5 h-5 text-brand-400"></i>
+          Objetivo Geral do Plano
+        </h2>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Recomposição corporal (ganho de massa magra simultâneo à perda de gordura) mantendo alta densidade nos treinos, aliada à <strong class="text-amber-400 font-semibold">proteção articular rigorosa dos joelhos</strong> (condromalácia patelar crônica).
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <h4 class="text-xs uppercase font-bold text-brand-400 mb-2">Rotina & Horários</h4>
+            <ul class="text-xs text-slate-300 space-y-1.5">
+              <li>&bull; <strong>Frequência:</strong> 5 dias por semana (Segunda a Sexta)</li>
+              <li>&bull; <strong>Horário:</strong> 04:30 às 06:00 da manhã</li>
+              <li>&bull; <strong>Local:</strong> Academia Pano Bianco (Unidade Boulevard Jacareí)</li>
+              <li>&bull; <strong>Sáb/Dom:</strong> Descanso / Cardio leve recreativo</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <h4 class="text-xs uppercase font-bold text-amber-400 mb-2">Regras de Proteção de Joelho</h4>
+            <ul class="text-xs text-slate-300 space-y-1.5">
+              <li>&bull; Sem movimentos de impacto (evitar corridas/saltos).</li>
+              <li>&bull; Cadeira Extensora limitada a amplitudes de conforto sinovial.</li>
+              <li>&bull; Dar preferência a exercícios em máquina (Cadeira Abdutora/Adutora, Leg Press com cadência e sem hipertensão).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECOMENDAÇÕES DE EXECUÇÃO -->
+      <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-md">
+        <h3 class="text-md font-bold text-white mb-3 flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-5 h-5 text-brand-400"></i>
+          Princípios de Treinamento
+        </h3>
+        <div class="space-y-3 text-xs sm:text-sm text-slate-300">
+          <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+            <strong class="text-slate-100 block mb-1">1. Descanso e Freqüência Heart-Rate:</strong>
+            Mantenha o cronômetro em 45s - 60s para manter o ritmo metabólico elevado sem comprometer a recuperação muscular.
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+            <strong class="text-slate-100 block mb-1">2. Controle de Cadência:</strong>
+            2 segundos na fase excêntrica (descida do peso) e 1 a 2 segundos na fase concêntrica (subida). Evite usar o tranco.
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+            <strong class="text-slate-100 block mb-1">3. Progressão de Cargas Responsável:</strong>
+            Anote a carga atual diretamente na planilha do app. Aumente o peso apenas quando atingir o teto de repetições estipulado com boa postura.
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= TAB 4: DADOS E BACKUP ================= -->
+    <section id="tab-dados" class="space-y-6 hidden">
+      <div class="bg-cardbg rounded-2xl p-5 border border-slate-800 shadow-md">
+        <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <i data-lucide="database" class="w-5 h-5 text-brand-400"></i>
+          Gerenciamento de Dados & Backup
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-400 mb-6">
+          Todos os registros de cargas, séries completadas e histórico de peso ficam salvos no armazenamento local do seu navegador (LocalStorage). Você pode exportar para não perder suas anotações.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- EXPORTAR -->
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h4 class="text-sm font-bold text-slate-200">Exportar Backup</h4>
+            <p class="text-xs text-slate-400">Baixe um arquivo JSON com todas as suas cargas salvas e medições.</p>
+            <button onclick="exportData()" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition">
+              <i data-lucide="download" class="w-4 h-4"></i> Baixar Arquivo de Backup
+            </button>
+          </div>
+
+          <!-- IMPORTAR -->
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h4 class="text-sm font-bold text-slate-200">Importar Backup</h4>
+            <p class="text-xs text-slate-400">Restaure seus dados salvos anteriormente a partir de um arquivo JSON.</p>
+            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)">
+            <button onclick="document.getElementById('import-file').click()" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition">
+              <i data-lucide="upload" class="w-4 h-4"></i> Carregar Arquivo de Backup
+            </button>
+          </div>
+        </div>
+
+        <!-- PERIGO / RESET -->
+        <div class="mt-8 border-t border-slate-800 pt-5">
+          <button onclick="confirmResetAll()" class="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1.5 font-medium">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Redefinir e Limpar Dados do Aplicativo
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAVBAR FOR MOBILE -->
+  <footer class="md:hidden fixed bottom-0 left-0 right-0 bg-cardbg/95 backdrop-blur-md border-t border-slate-800 z-40 py-2 px-4">
+    <div class="flex justify-around items-center text-xs">
+      <button onclick="switchTab('treinos')" id="mob-btn-treinos" class="flex flex-col items-center gap-1 text-brand-400 font-bold">
+        <i data-lucide="dumbbell" class="w-5 h-5"></i>
+        <span>Treinos</span>
+      </button>
+      <button onclick="switchTab('evolucao')" id="mob-btn-evolucao" class="flex flex-col items-center gap-1 text-slate-400">
+        <i data-lucide="trending-up" class="w-5 h-5"></i>
+        <span>Evolução</span>
+      </button>
+      <button onclick="switchTab('resumo')" id="mob-btn-resumo" class="flex flex-col items-center gap-1 text-slate-400">
+        <i data-lucide="file-text" class="w-5 h-5"></i>
+        <span>Regras</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- SCRIPT JS PRINCIPAL COM DADOS DOS TREINOS DA PLANILHA -->
+  <script>
+    // DATA DO PLANO DE TREINO (DADOS EXTRAPOLADOS DA PLANILHA DO FABIO)
+    const workoutData = {
+      'A': {
+        tag: 'TREINO A',
+        schedule: 'Segunda-feira • 04:30 - 06:00',
+        title: 'Peito, Tríceps & Abdômen',
+        cardio: '20 min Esteira Inclinada (Incline 4-6, Velocidade 5.0-5.5 km/h) — Baixo impacto para o joelho.',
+        exercises: [
+          { id: 'a1', name: 'Supino Reto na Máquina / Articulado', sets: 4, reps: '10 - 12', rest: '60s', equipment: 'Máquina Chest Press', defaultWeight: '35', tip: 'Manter os ombros encaixados para trás e cotovelos em ~45 graus.' },
+          { id: 'a2', name: 'Supino Inclinado com Haste ou Halteres', sets: 3, reps: '10 - 12', rest: '60s', equipment: 'Banco Inclinado / Halteres', defaultWeight: '14', tip: 'Foco na porção superior do peitoral sem hiperextender os ombros.' },
+          { id: 'a3', name: 'Peck Deck / Voador Frontal', sets: 3, reps: '12 - 15', rest: '45s', equipment: 'Máquina Voador', defaultWeight: '40', tip: 'Pausar 1 segundo no pico da contração no centro.' },
+          { id: 'a4', name: 'Tríceps Pulley com Corda', sets: 4, reps: '12 - 15', rest: '45s', equipment: 'Cabo / Corda', defaultWeight: '25', tip: 'Abrir a corda no final da extensão e manter os cotovelos fixos ao lado do corpo.' },
+          { id: 'a5', name: 'Tríceps Testa na Polia / Halter', sets: 3, reps: '10 - 12', rest: '45s', equipment: 'Polia / Halteres', defaultWeight: '18', tip: 'Manter os cotovelos apontados para o teto e controlar a descida.' },
+          { id: 'a6', name: 'Abdominal Supra na Máquina ou Solo', sets: 3, reps: '15 - 20', rest: '45s', equipment: 'Colchonete / Máquina', defaultWeight: 'BW', tip: 'Soltar todo o ar na subida contraindo a musculatura abdominal.' }
+        ]
+      },
+      'B': {
+        tag: 'TREINO B',
+        schedule: 'Terça-feira • 04:30 - 06:00',
+        title: 'Costas, Biceps & Lombar',
+        cardio: '20 min Transport / Elíptico (Resistência moderada) — Zéro impacto articular.',
+        exercises: [
+          { id: 'b1', name: 'Puxada Frontal Aberta (Lat Pulldown)', sets: 4, reps: '10 - 12', rest: '60s', equipment: 'Puxador Máquina', defaultWeight: '45', tip: 'Puxar em direção ao peito estufando o tórax, sem balançar o tronco.' },
+          { id: 'b2', name: 'Remada Baixa Triângulo', sets: 3, reps: '10 - 12', rest: '60s', equipment: 'Polia Baixa / Triângulo', defaultWeight: '40', tip: 'Esmagar as escápulas ao puxar e alongar bem sem curvar a coluna.' },
+          { id: 'b3', name: 'Remada Articulada Unilateral', sets: 3, reps: '12 por lado', rest: '45s', equipment: 'Máquina Articulada', defaultWeight: '20', tip: 'Manter o tronco firme e estável no apoio frontal.' },
+          { id: 'b4', name: 'Rosca Direta na Barra W ou Polia', sets: 4, reps: '10 - 12', rest: '45s', equipment: 'Barra W / Cabo', defaultWeight: '20', tip: 'Não usar impulso da lombar na subida.' },
+          { id: 'b5', name: 'Rosca Martelo com Halteres', sets: 3, reps: '12', rest: '45s', equipment: 'Halteres', defaultWeight: '10', tip: 'Ótimo para fortalecimento dos antebraços e braquial.' },
+          { id: 'b6', name: 'Extensão Lombar no Banco / Hiperextensão', sets: 3, reps: '12 - 15', rest: '45s', equipment: 'Banco Romano', defaultWeight: 'BW', tip: 'Movimento controlado para proteção da coluna lombar.' }
+        ]
+      },
+      'C': {
+        tag: 'TREINO C',
+        schedule: 'Quarta-feira • 04:30 - 06:00',
+        title: 'Membros Inferiores (Com Proteção de Joelhos)',
+        cardio: '15 min Bicicleta Ergométrica (Banco na altura correta para não sobrecarregar patela).',
+        exercises: [
+          { id: 'c1', name: 'Leg Press 45° ou Horizontal', sets: 4, reps: '12 - 15', rest: '60s', equipment: 'Leg Press Pano Bianco', defaultWeight: '80', tip: '⚠️ JOELHO: Não travar as articulações na extensão total! Pés alinhados.' },
+          { id: 'c2', name: 'Cadeira Flexora (Isquiotibiais)', sets: 4, reps: '12 - 15', rest: '45s', equipment: 'Cadeira Flexora', defaultWeight: '35', tip: 'Excelente fortalecimento posterior para equilíbrio da patela.' },
+          { id: 'c3', name: 'Cadeira Extensora (Amplitude Confortável)', sets: 3, reps: '12', rest: '45s', equipment: 'Cadeira Extensora', defaultWeight: '30', tip: '⚠️ ATENÇÃO: Ajuste a amplitude para não gerar dor no sulco patelar.' },
+          { id: 'c4', name: 'Cadeira Abdutora (Glúteo Médio)', sets: 4, reps: '15 - 20', rest: '45s', equipment: 'Máquina Abdutora', defaultWeight: '45', tip: 'Fundamental para estabilização do quadril e alinhamento do joelho.' },
+          { id: 'c5', name: 'Cadeira Adutora', sets: 3, reps: '15', rest: '45s', equipment: 'Máquina Adutora', defaultWeight: '40', tip: 'Mantenha cadência lenta na fase de reabertura.' },
+          { id: 'c6', name: 'Gêmeos Sentado (Panturrilha)', sets: 4, reps: '15 - 20', rest: '45s', equipment: 'Máquina Panturrilha', defaultWeight: '30', tip: 'Pausa de 1 segundo no topo da contração.' }
+        ]
+      },
+      'D': {
+        tag: 'TREINO D',
+        schedule: 'Quinta-feira • 04:30 - 06:00',
+        title: 'Ombros, Trapézio & Core',
+        cardio: '20 min Esteira Inclinada (Caminhada rápida).',
+        exercises: [
+          { id: 'd1', name: 'Desenvolvimento com Halteres Sentado', sets: 4, reps: '10 - 12', rest: '60s', equipment: 'Banco 90° / Halteres', defaultWeight: '12', tip: 'Preserva articulação do ombro mantendo cotovelos levemente à frente.' },
+          { id: 'd2', name: 'Elevação Lateral com Halteres', sets: 4, reps: '12 - 15', rest: '45s', equipment: 'Halteres', defaultWeight: '8', tip: 'Elevar até a linha dos ombros sem jogar o corpo para trás.' },
+          { id: 'd3', name: 'Elevação Frontal na Polia com Corda', sets: 3, reps: '12', rest: '45s', equipment: 'Polia Baixa', defaultWeight: '15', tip: 'Tensão constante na porção anterior do deltoide.' },
+          { id: 'd4', name: 'Crucifixo Inverso no Peck Deck', sets: 3, reps: '12 - 15', rest: '45s', equipment: 'Máquina Voador', defaultWeight: '30', tip: 'Foco na porção posterior dos ombros e estabilização da postura.' },
+          { id: 'd5', name: 'Encolhimento de Ombros com Halteres', sets: 3, reps: '15', rest: '45s', equipment: 'Halteres', defaultWeight: '18', tip: 'Subir os ombros em direção às orelhas sem rotacionar.' },
+          { id: 'd6', name: 'Prancha Abdominal Isométrica', sets: 3, reps: '30 - 45s', rest: '45s', equipment: 'Colchonete', defaultWeight: 'BW', tip: 'Contrair glúteos e abdômen firmemente sem deixar a quadril cair.' }
+        ]
+      },
+      'E': {
+        tag: 'TREINO E',
+        schedule: 'Sexta-feira • 04:30 - 06:00',
+        title: 'Braços Completo & Ajustes',
+        cardio: '20 min Elíptico / Transport.',
+        exercises: [
+          { id: 'e1', name: 'Tríceps Testa Barra W', sets: 3, reps: '10 - 12', rest: '45s', equipment: 'Banco Plano / Barra W', defaultWeight: '18', tip: 'Manter braços paralelos durante toda a execução.' },
+          { id: 'e2', name: 'Rosca Alternada com Halteres (Banco Inclinado)', sets: 3, reps: '10 - 12', rest: '45s', equipment: 'Banco 45° / Halteres', defaultWeight: '10', tip: 'Maior alongamento da cabeça longa do bíceps.' },
+          { id: 'e3', name: 'Tríceps Francês Unilateral ou Corda na Polia', sets: 3, reps: '12', rest: '45s', equipment: 'Polia', defaultWeight: '15', tip: 'Mantenha a postura ereta sem arquear a lombar.' },
+          { id: 'e4', name: 'Rosca Scott Máquina ou Barra', sets: 3, reps: '10 - 12', rest: '45s', equipment: 'Banco Scott Pano Bianco', defaultWeight: '25', tip: 'Evite esticar 100% o cotovelo no fundo para proteger o tendão.' },
+          { id: 'e5', name: 'Abdominal infra Elevação de Pernas', sets: 3, reps: '12 - 15', rest: '45s', equipment: 'Paralelas / Colchonete', defaultWeight: 'BW', tip: 'Elevar a bacia levemente no final do movimento.' }
+        ]
+      }
+    };
+
+    // REGISTROS INICIAIS DA PLANILHA DO FABIO
+    const initialWeightHistory = [
+      { id: 1, date: '2026-05-22', weight: 83.4, fat: 23.3, height: 1.78 }
+    ];
+
+    // ESTADO DA APLICAÇÃO
+    let currentDay = 'A';
+    let savedWeights = JSON.parse(localStorage.getItem('fabio_exercise_weights')) || {};
+    let savedChecks = JSON.parse(localStorage.getItem('fabio_exercise_checks')) || {};
+    let weightHistory = JSON.parse(localStorage.getItem('fabio_weight_history')) || initialWeightHistory;
+
+    // TIMER STATE
+    let timerInterval = null;
+    let timerSecLeft = 45;
+    let isTimerRunning = false;
+    let chartInstance = null;
+
+    // INICIALIZAÇÃO
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      selectWorkoutDay('A');
+      renderHistoryTable();
+      initChart();
+      updateMetricsCards();
+
+      // Set default date input to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('input-date').value = today;
+    });
+
+    // MUDANÇA DE ABAS
+    function switchTab(tabName) {
+      const tabs = ['treinos', 'evolucao', 'resumo', 'dados'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const mobBtn = document.getElementById(`mob-btn-${t}`);
+
+        if (t === tabName) {
+          el.classList.remove('hidden');
+          if(btn) {
+            btn.className = "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-brand-500 text-slate-950 font-semibold shadow";
+          }
+          if(mobBtn) {
+            mobBtn.className = "flex flex-col items-center gap-1 text-brand-400 font-bold";
+          }
+        } else {
+          el.classList.add('hidden');
+          if(btn) {
+            btn.className = "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-slate-400 hover:text-slate-200 hover:bg-slate-800";
+          }
+          if(mobBtn) {
+            mobBtn.className = "flex flex-col items-center gap-1 text-slate-400";
+          }
+        }
+      });
+
+      if (tabName === 'evolucao') {
+        setTimeout(() => { renderChart(); }, 100);
+      }
+    }
+
+    // SELEÇÃO DO DIA DE TREINO (A, B, C, D, E)
+    function selectWorkoutDay(day) {
+      currentDay = day;
+      const days = ['A', 'B', 'C', 'D', 'E'];
+      days.forEach(d => {
+        const btn = document.getElementById(`btn-day-${d}`);
+        if (d === day) {
+          btn.className = "py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold transition-all bg-brand-500 text-slate-950 shadow";
+        } else {
+          btn.className = "py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-slate-200";
+        }
+      });
+
+      const data = workoutData[day];
+      document.getElementById('workout-tag').innerText = data.tag;
+      document.getElementById('workout-schedule').innerText = data.schedule;
+      document.getElementById('workout-title').innerText = data.title;
+      document.getElementById('workout-cardio').innerText = data.cardio;
+
+      renderExercises(data.exercises);
+    }
+
+    // RENDERIZAR CARDS DE EXERCÍCIOS
+    function renderExercises(exercises) {
+      const container = document.getElementById('exercises-container');
+      container.innerHTML = '';
+
+      exercises.forEach((ex, idx) => {
+        const currentWeight = savedWeights[ex.id] !== undefined ? savedWeights[ex.id] : ex.defaultWeight;
+        
+        // Render sets checkboxes
+        let setsHTML = '';
+        for (let s = 1; s <= ex.sets; s++) {
+          const checkKey = `${ex.id}_set_${s}`;
+          const isChecked = savedChecks[checkKey] ? 'checked' : '';
+          setsHTML += `
+            <div class="flex items-center gap-1">
+              <input type="checkbox" id="${checkKey}" class="hidden set-checkbox" ${isChecked} onchange="toggleSetCheck('${checkKey}')">
+              <label for="${checkKey}" class="cursor-pointer text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-900 text-slate-400 hover:border-brand-500 transition-all select-none">
+                Série ${s}
+              </label>
+            </div>
+          `;
+        }
+
+        const card = document.createElement('div');
+        card.className = "exercise-card bg-cardbg border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3";
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+            <div class="flex items-start gap-3">
+              <span class="w-7 h-7 rounded-lg bg-slate-800 text-brand-400 font-bold flex items-center justify-center text-xs shrink-0 border border-slate-700">
+                ${idx + 1}
+              </span>
+              <div>
+                <h3 class="font-bold text-white text-base leading-tight">${ex.name}</h3>
+                <span class="text-xs text-slate-400">${ex.equipment}</span>
+              </div>
+            </div>
+
+            <!-- CARGA ATUAL INPUT -->
+            <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 self-start sm:self-auto">
+              <span class="text-xs text-slate-400 font-medium">Carga (kg):</span>
+              <input type="number" step="0.5" value="${currentWeight}" onchange="updateExerciseWeight('${ex.id}', this.value)" class="w-16 bg-slate-800 border border-slate-700 rounded-lg px-2 py-0.5 text-xs text-brand-400 font-bold text-center focus:outline-none focus:border-brand-500">
+            </div>
+          </div>
+
+          <!-- REPS E DESCANSO METRICS -->
+          <div class="grid grid-cols-3 gap-2 text-center text-xs bg-slate-900/50 p-2 rounded-xl border border-slate-800/60">
+            <div>
+              <span class="text-slate-400 block text-[10px] uppercase font-semibold">Séries</span>
+              <span class="font-bold text-slate-200">${ex.sets}</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px] uppercase font-semibold">Repetições</span>
+              <span class="font-bold text-brand-400">${ex.reps}</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px] uppercase font-semibold">Descanso</span>
+              <span class="font-bold text-slate-200">${ex.rest}</span>
+            </div>
+          </div>
+
+          <!-- DICA DE OURO DE SEGURANÇA -->
+          <div class="text-xs bg-amber-500/10 text-amber-300 p-2.5 rounded-xl border border-amber-500/20 flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+            <span><strong>Dica/Proteção:</strong> ${ex.tip}</span>
+          </div>
+
+          <!-- CHECKBOXES DAS SÉRIES -->
+          <div class="pt-1">
+            <span class="text-[11px] text-slate-400 font-semibold block mb-1.5">Marcar Séries Concluídas:</span>
+            <div class="flex flex-wrap gap-2">
+              ${setsHTML}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // SALVAR CARGA
+    function updateExerciseWeight(exId, val) {
+      savedWeights[exId] = val;
+      localStorage.setItem('fabio_exercise_weights', JSON.stringify(savedWeights));
+    }
+
+    // SALVAR CHECKBOXES
+    function toggleSetCheck(checkKey) {
+      const checkbox = document.getElementById(checkKey);
+      if (checkbox) {
+        savedChecks[checkKey] = checkbox.checked;
+        localStorage.setItem('fabio_exercise_checks', JSON.stringify(savedChecks));
+      }
+    }
+
+    // RESETAR CHECKS DO DIA SELECIONADO
+    function resetDayCheckboxes() {
+      const exercises = workoutData[currentDay].exercises;
+      exercises.forEach(ex => {
+        for (let s = 1; s <= ex.sets; s++) {
+          const checkKey = `${ex.id}_set_${s}`;
+          savedChecks[checkKey] = false;
+        }
+      });
+      localStorage.setItem('fabio_exercise_checks', JSON.stringify(savedChecks));
+      renderExercises(exercises);
+    }
+
+    // TIMER LOGIC
+    function setTimerSec(sec) {
+      timerSecLeft = sec;
+      updateTimerDisplay();
+      if (isTimerRunning) {
+        clearInterval(timerInterval);
+        startTimerInterval();
+      }
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerSecLeft / 60);
+      const secs = timerSecLeft % 60;
+      document.getElementById('timer-display').innerText = 
+        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function toggleTimer() {
+      if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        document.getElementById('timer-toggle-btn').innerHTML = '<i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Iniciar';
+      } else {
+        isTimerRunning = true;
+        document.getElementById('timer-toggle-btn').innerHTML = '<i data-lucide="pause" class="w-3.5 h-3.5 fill-current"></i> Pausar';
+        startTimerInterval();
+      }
+      lucide.createIcons();
+    }
+
+    function startTimerInterval() {
+      timerInterval = setInterval(() => {
+        if (timerSecLeft > 0) {
+          timerSecLeft--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          isTimerRunning = false;
+          document.getElementById('timer-toggle-btn').innerHTML = '<i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Iniciar';
+          lucide.createIcons();
+          // Tocar bip simples com Web Audio API
+          playBeep();
+        }
+      }, 1000);
+    }
+
+    function playBeep() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+      } catch (e) {
+        console.log("Audio not supported");
+      }
+    }
+
+    // METRICAS & PESO LOG
+    function handleSaveWeight(e) {
+      e.preventDefault();
+      const date = document.getElementById('input-date').value;
+      const weight = parseFloat(document.getElementById('input-weight').value);
+      const fat = document.getElementById('input-fat').value ? parseFloat(document.getElementById('input-fat').value) : null;
+
+      if (!date || isNaN(weight)) return;
+
+      const newEntry = {
+        id: Date.now(),
+        date: date,
+        weight: weight,
+        fat: fat,
+        height: 1.78
+      };
+
+      weightHistory.push(newEntry);
+      weightHistory.sort((a, b) => new Date(a.date) - new Date(b.date));
+      localStorage.setItem('fabio_weight_history', JSON.stringify(weightHistory));
+
+      document.getElementById('input-weight').value = '';
+      document.getElementById('input-fat').value = '';
+
+      renderHistoryTable();
+      updateMetricsCards();
+      renderChart();
+    }
+
+    function deleteWeightEntry(id) {
+      if (confirm("Deseja realmente excluir este registro?")) {
+        weightHistory = weightHistory.filter(item => item.id !== id);
+        localStorage.setItem('fabio_weight_history', JSON.stringify(weightHistory));
+        renderHistoryTable();
+        updateMetricsCards();
+        renderChart();
+      }
+    }
+
+    function updateMetricsCards() {
+      if (weightHistory.length === 0) return;
+
+      const latest = weightHistory[weightHistory.length - 1];
+      const initial = weightHistory[0];
+
+      document.getElementById('metric-latest-weight').innerText = `${latest.weight.toFixed(1)} kg`;
+      
+      // Calculate IMC = Weight / (1.78^2)
+      const imc = (latest.weight / (1.78 * 1.78)).toFixed(1);
+      document.getElementById('metric-latest-imc').innerText = imc;
+
+      // Weight Change
+      const diff = latest.weight - initial.weight;
+      const diffTxt = diff >= 0 ? `+${diff.toFixed(1)} kg` : `${diff.toFixed(1)} kg`;
+      document.getElementById('metric-weight-change').innerText = diffTxt;
+      document.getElementById('metric-weight-change').className = diff <= 0 ? "text-2xl font-bold text-emerald-400 mt-1 block" : "text-2xl font-bold text-amber-400 mt-1 block";
+
+      // Lean mass estimate if FAT% is provided
+      if (latest.fat) {
+        const lean = latest.weight * (1 - (latest.fat / 100));
+        document.getElementById('metric-lean-mass').innerText = `${lean.toFixed(1)} kg`;
+      } else {
+        document.getElementById('metric-lean-mass').innerText = `-- kg`;
+      }
+    }
+
+    function renderHistoryTable() {
+      const tbody = document.getElementById('history-table-body');
+      tbody.innerHTML = '';
+
+      if (weightHistory.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-500">Nenhum registro encontrado.</td></tr>`;
+        return;
+      }
+
+      [...weightHistory].reverse().forEach(item => {
+        const imc = (item.weight / (1.78 * 1.78)).toFixed(1);
+        const fatText = item.fat ? `${item.fat.toFixed(1)}%` : '--';
+        const leanMass = item.fat ? `${(item.weight * (1 - item.fat/100)).toFixed(1)} kg` : '--';
+        
+        // Format date string to BR format
+        const dateParts = item.date.split('-');
+        const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-medium text-white">${formattedDate}</td>
+          <td class="py-3 px-4 font-bold text-brand-400">${item.weight.toFixed(1)} kg</td>
+          <td class="py-3 px-4">${imc}</td>
+          <td class="py-3 px-4">${fatText}</td>
+          <td class="py-3 px-4">${leanMass}</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="deleteWeightEntry(${item.id})" class="text-rose-400 hover:text-rose-300 p-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    // CHART.JS INITIALIZATION
+    function initChart() {
+      const ctx = document.getElementById('weightChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Peso (kg)',
+            data: [],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointBackgroundColor: '#10b981',
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8' }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: '#1f2937' }
+            },
+            y: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: '#1f2937' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderChart() {
+      if (!chartInstance) return;
+      const sorted = [...weightHistory].sort((a,b) => new Date(a.date) - new Date(b.date));
+      const labels = sorted.map(item => {
+        const p = item.date.split('-');
+        return `${p[2]}/${p[1]}`;
+      });
+      const data = sorted.map(item => item.weight);
+
+      chartInstance.data.labels = labels;
+      chartInstance.data.datasets[0].data = data;
+      chartInstance.update();
+    }
+
+    // EXPORTAR & IMPORTAR DADOS
+    function exportData() {
+      const payload = {
+        savedWeights,
+        savedChecks,
+        weightHistory
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `fabio_treino_backup_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.savedWeights) localStorage.setItem('fabio_exercise_weights', JSON.stringify(parsed.savedWeights));
+          if (parsed.savedChecks) localStorage.setItem('fabio_exercise_checks', JSON.stringify(parsed.savedChecks));
+          if (parsed.weightHistory) localStorage.setItem('fabio_weight_history', JSON.stringify(parsed.weightHistory));
+
+          alert("Dados importados com sucesso!");
+          location.reload();
+        } catch (err) {
+          alert("Erro ao importar o arquivo. Formato JSON inválido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function confirmResetAll() {
+      if (confirm("Tem certeza que deseja apagar todo o histórico de peso e cargas salvas? Esta ação não pode ser desfeita.")) {
+        localStorage.removeItem('fabio_exercise_weights');
+        localStorage.removeItem('fabio_exercise_checks');
+        localStorage.removeItem('fabio_weight_history');
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
